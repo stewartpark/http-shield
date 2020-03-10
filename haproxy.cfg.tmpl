@@ -1,0 +1,33 @@
+global
+    maxconn {{getv "/shield/maxconn" "1024"}}
+    nbthread {{getv "/shield/nbthread" "4"}}
+
+defaults
+    timeout connect {{getv "/shield/timeout/connect" "10s"}}
+    timeout client {{getv "/shield/timeout/client" "30s"}}
+    timeout server {{getv "/shield/timeout/server" "300s"}}
+    timeout queue {{getv "/shield/timeout/queue" "300s"}}
+    log global
+    mode http
+    option httplog
+    maxconn {{getv "/shield/maxconn" "1024"}}
+
+frontend http
+    bind 0.0.0.0:{{getv "/frontend_port" "8080"}}
+    {{range $endpoints := gets "/endpoints/*"}}
+    {{range $path := split (index (split ($endpoints.Value) ":") 1) ","}}
+    use_backend {{replace $endpoints.Key "/" "_" -1}} if { path_beg {{$path}} }
+    {{end}}
+    {{end}}
+    default_backend unprotected
+
+{{range gets "/endpoints/*"}}
+backend {{replace .Key "/" "_" -1}}
+    balance roundrobin
+    default-server check maxconn {{index (split (.Value) ":") 0}} maxqueue {{getv "/shield/maxqueue" "1024"}}
+    server default {{getv "/server/host" "127.0.0.1"}}:{{getv "/server/port"}}
+{{end}}
+
+backend unprotected
+    balance roundrobin
+    server default {{getv "/server/host" "127.0.0.1"}}:{{getv "/server/port"}} maxconn {{getv "/shield/maxconn" "1024"}}

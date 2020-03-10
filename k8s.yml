@@ -1,0 +1,45 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  selector:
+    app: test
+  ports:
+    - name: test
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+        - name: http-shield
+          image: stewartpark/http-shield:latest
+          ports: [{ containerPort: 8080 }]
+          env:
+            - name: SERVER_PORT
+              value: '80'  # The demo app listens on :80
+            - name: ENDPOINTS_0
+              value: '1:/api/heavy1,/api/heavy2' # These APIs only allow one concurrent connections (if /api/heavy1 has one, /api/heavy2 waits)
+            - name: ENDPOINTS_1
+              value: '10:/api/hi' # You can add more than one rule. /api/hi will have the maximum concurrency of 10.
+            # Rest of the endpoints will be unprotected and will have unlimited concurrency.
+        - image: nginxdemos/hello:latest # Demo application
+          name: app
