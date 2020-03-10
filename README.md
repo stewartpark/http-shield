@@ -1,5 +1,8 @@
 # http-shield sidecar
 
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/stewartpark/http-shield?style=flat-square)
+![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/stewartpark/http-shield?style=flat-square)
+
 http-shield is a Kubernetes sidecar container that protects a concurrent, compute-heavy service from a burst of requests.
 
 There's a `docker-compose.yml` file for demo purposes, if you'd like to try it out quickly.
@@ -52,3 +55,5 @@ spec:
         - name: your-app
           ...
 ```
+
+And let your Service resource point to `8080`, instead of your application port.
