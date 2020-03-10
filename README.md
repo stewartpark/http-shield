@@ -3,7 +3,7 @@
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/stewartpark/http-shield?style=flat-square)
 ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/stewartpark/http-shield?style=flat-square)
 
-☸️ http-shield is a Kubernetes sidecar container that protects a concurrent, compute-heavy service from a burst of requests.
+☸️ http-shield is a Kubernetes sidecar container that protects a concurrent, compute-heavy service from a burst of requests. (HAProxy, confd)
 
 There's a `docker-compose.yml` file for demo purposes, if you'd like to try it out quickly.
 
@@ -24,6 +24,11 @@ Requests per second:    4.99 [#/sec] (mean)
 ...
 ```
 
+## How it works
+
+When the container starts, it reads environment variables and generate a configuration file for HAProxy via [confd](http://www.confd.io/). And then, [HAProxy](http://www.haproxy.org/) takes care of the reverse proxying part to your application.
+
+Since this sidecar uses battle-tested software as its parts, it can be trusted to do its job!
 
 ## How to use
 
